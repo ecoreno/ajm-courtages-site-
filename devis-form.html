@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Demande de devis — AJM Courtage</title>
+<style>
+  :root{
+    --navy:#0b3554;
+    --navy-dark:#082539;
+    --teal:#1fb6b3;
+    --teal-light:#c9f3f1;
+    --bg:#f4fafa;
+    --card:#ffffff;
+    --text:#1c2b36;
+    --muted:#5b6b76;
+    --star-off:#d7e3e6;
+    --star-on:#f5a623;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:"Segoe UI",Arial,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    padding:32px 16px 80px;
+  }
+  .wrap{max-width:760px;margin:0 auto;}
+  .eyebrow{color:var(--teal);font-weight:600;font-size:14px;margin-bottom:4px;}
+  h1{font-size:28px;line-height:1.25;color:var(--navy);margin:0 0 8px;}
+  .lead{color:var(--muted);margin:0 0 28px;max-width:56ch;}
+
+  .steps{display:flex;gap:8px;margin-bottom:28px;}
+  .steps span{
+    flex:1;height:4px;border-radius:4px;background:var(--star-off);
+    transition:background .25s ease;
+  }
+  .steps span.active{background:var(--teal);}
+
+  .card{
+    background:var(--card);
+    border-radius:var(--radius);
+    padding:28px;
+    box-shadow:0 1px 3px rgba(11,53,84,.08), 0 8px 24px rgba(11,53,84,.06);
+  }
+  .card h2{font-size:19px;color:var(--navy);margin:0 0 4px;}
+  .card .sub{color:var(--muted);font-size:14px;margin:0 0 20px;}
+
+  /* Étape 1 : besoins */
+  .needs-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:12px;
+  }
+  @media (max-width:520px){ .needs-grid{grid-template-columns:1fr;} }
+
+  .need{
+    position:relative;
+    border:1.5px solid #e1eaec;
+    border-radius:12px;
+    padding:14px 16px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    cursor:pointer;
+    transition:border-color .15s ease, background .15s ease;
+  }
+  .need:hover{border-color:var(--teal);}
+  .need input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer;}
+  .need .box{
+    width:20px;height:20px;border-radius:6px;border:1.5px solid #c7d4d8;
+    flex:none;display:flex;align-items:center;justify-content:center;
+    background:#fff;
+  }
+  .need .box svg{width:12px;height:12px;opacity:0;transition:opacity .1s ease;}
+  .need input:checked ~ .box{background:var(--teal);border-color:var(--teal);}
+  .need input:checked ~ .box svg{opacity:1;}
+  .need input:checked ~ .label{color:var(--navy);font-weight:600;}
+  .need input:focus-visible ~ .box{outline:2px solid var(--teal);outline-offset:2px;}
+  .need.checked{border-color:var(--teal);background:var(--teal-light);}
+  .need .label{font-size:15px;color:var(--text);}
+
+  /* Sous-bloc besoins santé */
+  #sante-detail{
+    margin-top:20px;
+    padding-top:20px;
+    border-top:1px dashed #dde8ea;
+    display:none;
+  }
+  #sante-detail.show{display:block;}
+  #sante-detail h3{font-size:15px;color:var(--navy);margin:0 0 2px;}
+  #sante-detail .sub{margin-bottom:16px;}
+
+  .health-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    padding:12px 4px;
+    border-bottom:1px solid #eef3f4;
+  }
+  .health-row:last-child{border-bottom:none;}
+  .health-row label.chk{
+    display:flex;align-items:center;gap:10px;cursor:pointer;flex:1;font-size:14.5px;
+  }
+  .health-row input[type=checkbox]{
+    width:18px;height:18px;accent-color:var(--teal);cursor:pointer;flex:none;
+  }
+  .health-row.disabled .stars button{cursor:not-allowed;opacity:.35;}
+  .health-row .name.disabled{color:var(--muted);}
+
+  .stars{display:flex;gap:3px;}
+  .stars button{
+    background:none;border:none;padding:2px;cursor:pointer;line-height:0;
+  }
+  .stars svg{width:20px;height:20px;display:block;}
+  .stars svg path{fill:var(--star-off);transition:fill .1s ease;}
+  .stars button[aria-pressed="true"] svg path,
+  .stars button.lit svg path{fill:var(--star-on);}
+  .stars button:disabled{cursor:not-allowed;}
+
+  /* Étape 2 : coordonnées */
+  .field{margin-bottom:16px;}
+  .field label{display:block;font-size:13.5px;font-weight:600;color:var(--navy);margin-bottom:6px;}
+  .field input, .field textarea{
+    width:100%;padding:11px 13px;border:1.5px solid #dbe6e8;border-radius:9px;
+    font-size:14.5px;font-family:inherit;color:var(--text);
+  }
+  .field input:focus, .field textarea:focus{outline:none;border-color:var(--teal);}
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  @media (max-width:520px){ .two-col{grid-template-columns:1fr;} }
+
+  /* Récap étape 3 */
+  .summary{
+    background:var(--bg);border-radius:10px;padding:16px 18px;margin-bottom:20px;font-size:14px;
+  }
+  .summary h3{font-size:13.5px;text-transform:none;color:var(--navy);margin:0 0 8px;}
+  .summary ul{margin:0;padding-left:18px;color:var(--text);}
+  .summary li{margin-bottom:4px;}
+  .summary .stars-inline{color:var(--star-on);font-size:12px;margin-left:4px;}
+
+  .nav-buttons{display:flex;justify-content:space-between;margin-top:26px;gap:12px;}
+  .btn{
+    border:none;border-radius:999px;padding:13px 26px;font-size:15px;font-weight:600;
+    cursor:pointer;transition:opacity .15s ease;
+  }
+  .btn-primary{background:var(--navy);color:#fff;}
+  .btn-primary:hover{opacity:.9;}
+  .btn-primary:disabled{background:#b7c3ca;cursor:not-allowed;}
+  .btn-ghost{background:none;color:var(--navy);border:1.5px solid #dbe6e8;}
+  .btn-ghost:hover{border-color:var(--navy);}
+
+  .hint{font-size:12.5px;color:var(--muted);margin-top:14px;}
+  .success{
+    text-align:center;padding:40px 20px;
+  }
+  .success h2{color:var(--navy);}
+  .success p{color:var(--muted);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">Votre demande</div>
+  <h1>Obtenez une réponse adaptée à votre situation</h1>
+  <p class="lead">Trois étapes rapides. Un conseiller étudie votre demande et revient vers vous — sans engagement.</p>
+
+  <div class="steps">
+    <span class="active" data-step-indicator="1"></span>
+    <span data-step-indicator="2"></span>
+    <span data-step-indicator="3"></span>
+  </div>
+
+  <div class="card">
+
+    <!-- ÉTAPE 1 : besoins -->
+    <section class="step" data-step="1">
+      <h2>Quel(s) besoin(s) souhaitez-vous étudier ?</h2>
+      <p class="sub">Sélectionnez une ou plusieurs assurances — un conseiller peut étudier plusieurs besoins en même temps.</p>
+
+      <div class="needs-grid" id="needs-grid">
+        <!-- généré en JS -->
+      </div>
+
+      <div id="sante-detail">
+        <h3>Vos besoins en santé</h3>
+        <p class="sub">Cochez ce qui vous concerne, puis indiquez le degré de priorité pour chacun (1 à 4 étoiles).</p>
+        <div id="health-list"></div>
+      </div>
+
+      <div class="nav-buttons">
+        <span></span>
+        <button class="btn btn-primary" id="to-step-2">Continuer</button>
+      </div>
+    </section>
+
+    <!-- ÉTAPE 2 : coordonnées -->
+    <section class="step" data-step="2" style="display:none;">
+      <h2>Vos coordonnées</h2>
+      <p class="sub">Pour vous transmettre une réponse adaptée à votre situation.</p>
+
+      <div class="two-col">
+        <div class="field">
+          <label for="prenom">Prénom</label>
+          <input type="text" id="prenom" placeholder="Prénom">
+        </div>
+        <div class="field">
+          <label for="nom">Nom</label>
+          <input type="text" id="nom" placeholder="Nom">
+        </div>
+      </div>
+      <div class="two-col">
+        <div class="field">
+          <label for="email">E-mail</label>
+          <input type="email" id="email" placeholder="vous@exemple.fr">
+        </div>
+        <div class="field">
+          <label for="tel">Téléphone</label>
+          <input type="tel" id="tel" placeholder="06 12 34 56 78">
+        </div>
+      </div>
+      <div class="field">
+        <label for="message">Message (facultatif)</label>
+        <textarea id="message" rows="3" placeholder="Précisions utiles sur votre situation..."></textarea>
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn btn-ghost" data-back="1">Retour</button>
+        <button class="btn btn-primary" id="to-step-3">Continuer</button>
+      </div>
+    </section>
+
+    <!-- ÉTAPE 3 : récap -->
+    <section class="step" data-step="3" style="display:none;">
+      <h2>Vérifiez votre demande</h2>
+      <p class="sub">Un conseiller AJM Courtage revient vers vous sous quelques jours ouvrés.</p>
+
+      <div class="summary" id="summary"></div>
+
+      <div class="nav-buttons">
+        <button class="btn btn-ghost" data-back="2">Retour</button>
+        <button class="btn btn-primary" id="submit-form">Envoyer ma demande</button>
+      </div>
+      <p class="hint">En envoyant ce formulaire, vous acceptez d'être recontacté par un conseiller AJM Courtage. Voir notre politique de confidentialité.</p>
+    </section>
+
+    <!-- Succès -->
+    <section class="step success" data-step="done" style="display:none;">
+      <h2>Merci, votre demande est bien reçue.</h2>
+      <p>Un conseiller AJM Courtage vous recontacte sous quelques jours ouvrés.</p>
+    </section>
+
+  </div>
+</div>
+
+<script>
+const NEEDS = [
+  {id:'sante', label:'Assurance Santé'},
+  {id:'prevoyance', label:'Prévoyance'},
+  {id:'auto', label:'Assurance Auto'},
+  {id:'moto', label:'Assurance Moto'},
+  {id:'animaux', label:'Assurance Chien & Chat'},
+  {id:'habitation', label:'Assurance Habitation'},
+  {id:'emprunteur', label:'Assurance Emprunteur'},
+];
+
+const HEALTH_NEEDS = [
+  {id:'consultations', label:'Consultations & médecine générale'},
+  {id:'hospitalisation', label:'Hospitalisation'},
+  {id:'optique', label:'Optique'},
+  {id:'dentaire', label:'Dentaire'},
+  {id:'medecines-douces', label:'Médecines douces'},
+  {id:'longue-duree', label:'Maladies graves / longue durée'},
+  {id:'audition', label:'Audition'},
+];
+
+const state = {
+  needs: new Set(),
+  health: {}, // id -> { checked: bool, priority: 0-4 }
+};
+HEALTH_NEEDS.forEach(h => state.health[h.id] = {checked:false, priority:0});
+
+const starIcon = () => `<svg viewBox="0 0 20 20"><path d="M10 1.5l2.6 5.6 6.1.6-4.6 4.1 1.3 6-5.4-3.1-5.4 3.1 1.3-6L1.3 7.7l6.1-.6L10 1.5z"/></svg>`;
+const checkIcon = () => `<svg viewBox="0 0 20 20" fill="none"><path d="M4 10l4 4 8-8" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+function renderNeeds(){
+  const grid = document.getElementById('needs-grid');
+  grid.innerHTML = NEEDS.map(n => `
+    <label class="need ${state.needs.has(n.id) ? 'checked' : ''}" data-need="${n.id}">
+      <input type="checkbox" ${state.needs.has(n.id) ? 'checked' : ''}>
+      <span class="box">${checkIcon()}</span>
+      <span class="label">${n.label}</span>
+    </label>
+  `).join('');
+
+  grid.querySelectorAll('.need').forEach(el => {
+    el.querySelector('input').addEventListener('change', (e) => {
+      const id = el.dataset.need;
+      if(e.target.checked) state.needs.add(id); else state.needs.delete(id);
+      renderNeeds();
+      renderHealthDetail();
+    });
+  });
+}
+
+function renderHealthDetail(){
+  const panel = document.getElementById('sante-detail');
+  const list = document.getElementById('health-list');
+  const active = state.needs.has('sante');
+  panel.classList.toggle('show', active);
+
+  list.innerHTML = HEALTH_NEEDS.map(h => {
+    const s = state.health[h.id];
+    const disabled = !s.checked;
+    return `
+    <div class="health-row ${disabled ? 'disabled' : ''}" data-health="${h.id}">
+      <label class="chk">
+        <input type="checkbox" ${s.checked ? 'checked' : ''} data-health-check="${h.id}">
+        <span class="name ${disabled ? 'disabled' : ''}">${h.label}</span>
+      </label>
+      <div class="stars" role="radiogroup" aria-label="Priorité pour ${h.label}, sur 4 étoiles">
+        ${[1,2,3,4].map(v => `
+          <button type="button"
+            data-health-star="${h.id}" data-value="${v}"
+            aria-pressed="${s.priority >= v}"
+            ${disabled ? 'disabled' : ''}
+            aria-label="${v} étoile${v>1?'s':''} de priorité">
+            ${starIcon()}
+          </button>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+
+  list.querySelectorAll('[data-health-check]').forEach(cb => {
+    cb.addEventListener('change', (e) => {
+      const id = cb.dataset.healthCheck;
+      state.health[id].checked = e.target.checked;
+      if(!e.target.checked) state.health[id].priority = 0;
+      else if(state.health[id].priority === 0) state.health[id].priority = 2; // priorité par défaut
+      renderHealthDetail();
+    });
+  });
+
+  list.querySelectorAll('[data-health-star]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.healthStar;
+      const val = Number(btn.dataset.value);
+      state.health[id].priority = val;
+      renderHealthDetail();
+    });
+  });
+}
+
+// Navigation
+function showStep(n){
+  document.querySelectorAll('.step').forEach(s => s.style.display = 'none');
+  document.querySelector(`.step[data-step="${n}"]`).style.display = 'block';
+  document.querySelectorAll('[data-step-indicator]').forEach(s => {
+    s.classList.toggle('active', Number(s.dataset.stepIndicator) <= n);
+  });
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+document.getElementById('to-step-2').addEventListener('click', () => {
+  if(state.needs.size === 0){ alert('Sélectionnez au moins un besoin pour continuer.'); return; }
+  showStep(2);
+});
+document.getElementById('to-step-3').addEventListener('click', () => {
+  renderSummary();
+  showStep(3);
+});
+document.querySelectorAll('[data-back]').forEach(b => {
+  b.addEventListener('click', () => showStep(Number(b.dataset.back)));
+});
+
+function renderSummary(){
+  const needsLabels = NEEDS.filter(n => state.needs.has(n.id)).map(n => n.label);
+  const healthLines = HEALTH_NEEDS
+    .filter(h => state.health[h.id].checked)
+    .map(h => `${h.label} <span class="stars-inline">${'★'.repeat(state.health[h.id].priority)}${'☆'.repeat(4-state.health[h.id].priority)}</span>`);
+
+  const prenom = document.getElementById('prenom').value || '—';
+  const nom = document.getElementById('nom').value || '—';
+  const email = document.getElementById('email').value || '—';
+  const tel = document.getElementById('tel').value || '—';
+
+  document.getElementById('summary').innerHTML = `
+    <h3>Besoins sélectionnés</h3>
+    <ul>${needsLabels.map(l => `<li>${l}</li>`).join('')}</ul>
+    ${healthLines.length ? `<h3 style="margin-top:14px;">Priorités santé</h3><ul>${healthLines.map(l=>`<li>${l}</li>`).join('')}</ul>` : ''}
+    <h3 style="margin-top:14px;">Coordonnées</h3>
+    <ul><li>${prenom} ${nom}</li><li>${email}</li><li>${tel}</li></ul>
+  `;
+}
+
+document.getElementById('submit-form').addEventListener('click', () => {
+  // À brancher sur votre endpoint d'envoi (Netlify Forms, e-mail, CRM...)
+  document.querySelectorAll('.step').forEach(s => s.style.display = 'none');
+  document.querySelector('.step[data-step="done"]').style.display = 'block';
+});
+
+renderNeeds();
+renderHealthDetail();
+</script>
+</body>
+</html>
