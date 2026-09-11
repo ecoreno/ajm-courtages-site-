@@ -328,81 +328,27 @@
         '</div>';
     }
 
-    // Envoie le lead à deux destinations en parallèle :
-    // 1) Formspree (https://formspree.io/f/xdeoblez) — notification par e-mail.
-    // 2) Le CRM AJM Courtage (https://ajmcourtagecrm.netlify.app) — le lead
-    //    apparaît dans l'onglet Clients avec le statut "Nouveau".
-    // Si l'un des deux échoue, l'autre continue normalement ; en cas
-    // d'échec des deux, le lead est gardé en mémoire locale et
-    // l'utilisateur voit tout de même une confirmation.
-    var FORMSPREE_URL = "https://formspree.io/f/xdeoblez";
+    // Envoie le lead à l'API du CRM AJM Courtage déjà déployé
+    // (https://ajmcourtagecrm.netlify.app), fonction lead-submit.js.
+    // Le lead apparaît directement dans l'onglet Clients du CRM avec le
+    // statut "Nouveau". En cas d'échec (réseau, CORS…), le lead est gardé
+    // en mémoire locale et l'utilisateur voit tout de même une confirmation.
     var CRM_API_URL = "https://ajmcourtagecrm.netlify.app/api/lead-submit";
-
-    function flattenPayload(payload) {
-      var out = {
-        produit: payload.product,
-        prenom: payload.contact.prenom,
-        nom: payload.contact.nom,
-        telephone: payload.contact.telephone,
-        email: payload.contact.email,
-        page: payload.meta && payload.meta.page,
-        _subject: "Nouvelle demande — " + payload.product
-      };
-      Object.keys(payload.answers || {}).forEach(function (k) {
-        out[k] = payload.answers[k];
-      });
-      if (payload.utm) {
-        Object.keys(payload.utm).forEach(function (k) {
-          out[k] = payload.utm[k];
-        });
-      }
-      return out;
-    }
 
     function sendLead(payload) {
       window.__ajmLeadsQueue = window.__ajmLeadsQueue || [];
-      if (payload.honeypot) {
-        return Promise.resolve({ ok: true });
-      }
-
-      var toFormspree = fetch(FORMSPREE_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json"
-        },
-        body: JSON.stringify(flattenPayload(payload))
-      }).then(function (res) {
-        if (!res.ok) throw new Error("formspree failed");
-        return true;
-      }).catch(function () {
-        return false;
-      });
-
-      var toCrm = fetch(CRM_API_URL, {
+      return fetch(CRM_API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
       }).then(function (res) {
-        if (!res.ok) throw new Error("crm failed");
+        if (!res.ok) throw new Error("submit failed");
         return res.json();
       }).then(function (data) {
         return { ok: true, leadId: data.clientId, score: data.score, tier: data.tier };
       }).catch(function () {
+        window.__ajmLeadsQueue.push(payload);
         return { ok: false };
-      });
-
-      return Promise.all([toFormspree, toCrm]).then(function (results) {
-        var formspreeOk = results[0];
-        var crmResult = results[1];
-        var anyOk = formspreeOk || crmResult.ok;
-        if (!anyOk) window.__ajmLeadsQueue.push(payload);
-        return {
-          ok: anyOk,
-          leadId: crmResult.leadId,
-          score: crmResult.score,
-          tier: crmResult.tier
-        };
       });
     }
 
