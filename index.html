@@ -78,14 +78,49 @@
         </div>
       </div>
       <div class="arc-figure"><svg viewBox="0 0 400 400" fill="none">
-  <circle cx="200" cy="200" r="150" stroke="#cfe8ee" stroke-width="2"/>
-  <path d="M200 50 A150 150 0 0 1 340 230" stroke="#2fb1c9" stroke-width="6" stroke-linecap="round"/>
-  <path d="M60 230 A150 150 0 0 1 140 62" stroke="#1a6fa8" stroke-width="6" stroke-linecap="round"/>
-  <circle cx="200" cy="200" r="86" fill="#eaf6f7"/>
-  <circle cx="200" cy="170" r="20" fill="#1a6fa8"/>
-  <path d="M160 230c0-26 18-42 40-42s40 16 40 42" stroke="#0d3a5c" stroke-width="7" stroke-linecap="round" fill="none"/>
-  <circle cx="340" cy="230" r="7" fill="#2fb1c9"/>
-  <circle cx="60" cy="230" r="7" fill="#5fd0dd"/>
+  <defs>
+    <radialGradient id="heroGlow" cx="50%" cy="42%" r="55%">
+      <stop offset="0%" stop-color="#eaf9fb" stop-opacity="1"/>
+      <stop offset="100%" stop-color="#eaf9fb" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="heroArc1" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#5fd0dd"/>
+      <stop offset="1" stop-color="#2fb1c9"/>
+    </linearGradient>
+    <linearGradient id="heroHand" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2fb1c9"/>
+      <stop offset="1" stop-color="#0d3a5c"/>
+    </linearGradient>
+  </defs>
+
+  <circle cx="200" cy="190" r="150" fill="url(#heroGlow)"/>
+  <path d="M200 44 A146 146 0 0 1 341 178" stroke="url(#heroArc1)" stroke-width="5" stroke-linecap="round"/>
+  <path d="M59 202 A146 146 0 0 1 154 48" stroke="#1a6fa8" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="341" cy="178" r="6" fill="#2fb1c9"/>
+  <circle cx="59" cy="202" r="6" fill="#5fd0dd"/>
+  <circle cx="330" cy="90" r="4" fill="#5fd0dd"/>
+  <circle cx="70" cy="300" r="4" fill="#2fb1c9"/>
+
+  <!-- Silhouette famille, debout, protégée -->
+  <g fill="#0d3a5c">
+    <circle cx="200" cy="150" r="15"/>
+    <path d="M178 232c0-26 10-46 22-46s22 20 22 46z"/>
+    <circle cx="163" cy="176" r="10"/>
+    <path d="M148 232c0-18 7-32 15-32s15 14 15 32z"/>
+    <circle cx="237" cy="176" r="10"/>
+    <path d="M222 232c0-18 7-32 15-32s15 14 15 32z"/>
+  </g>
+  <g fill="#2fb1c9">
+    <circle cx="128" cy="205" r="7"/>
+    <path d="M117 234c0-11 5-20 11-20s11 9 11 20z"/>
+    <circle cx="272" cy="205" r="7"/>
+    <path d="M261 234c0-11 5-20 11-20s11 9 11 20z"/>
+  </g>
+
+  <!-- Mains en coupe, qui portent la famille -->
+  <path d="M96 236c6-24 24-40 46-44 10-2 18 4 16 14-2 8-12 12-22 16-16 6-28 16-34 30-4 10-8 4-6-16Z" fill="url(#heroHand)"/>
+  <path d="M304 236c-6-24-24-40-46-44-10-2-18 4-16 14 2 8 12 12 22 16 16 6 28 16 34 30 4 10 8 4 6-16Z" fill="url(#heroHand)"/>
+  <path d="M84 258c10-14 26-22 44-22h144c18 0 34 8 44 22 6 8 2 16-8 14-14-3-26-8-36-8H128c-10 0-22 5-36 8-10 2-14-6-8-14Z" fill="url(#heroHand)"/>
 </svg></div>
     </div>
   </section>
